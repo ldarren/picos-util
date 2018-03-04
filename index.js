@@ -1,5 +1,4 @@
 const
-path = require('path'),
 zlib = require('zlib'),
 http = require('http'),
 https = require('https'),
@@ -84,7 +83,7 @@ module.exports = {
         })
 
         if (isGet) req.end()
-        req.end(body)
+        else req.end(body)
 		return req
     }
 }

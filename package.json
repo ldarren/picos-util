@@ -1,6 +1,6 @@
 {
   "name": "picos-util",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "util for picos and picos' modules",
   "main": "index.js",
   "scripts": {
