@@ -1,5 +1,5 @@
 const
-pico=require('pico-common/pico-cli'),
+pico=require('pico-common/bin/pico-cli'),
 ensure= pico.export('pico/test').ensure,
 util=require('./index')
 
@@ -29,6 +29,15 @@ ensure('ensure ajax post work', function(cb){
 		try{var obj=JSON.parse(res)}
 		catch(e){cb(e)}
 		cb(null, 1==obj.form.i)
+	})
+})
+ensure('ensure ajax json post work', function(cb){
+	util.ajax('post', 'https://httpbin.org/post', {i:1}, {headers:{'Content-Type': 'application/json'}}, (err,code,res)=>{
+		if (4!==code) return
+		if (err) return cb(err)
+		try{var obj=JSON.parse(res)}
+		catch(e){cb(e)}
+		cb(null, 1==obj.json.i)
 	})
 })
 ensure('ensure ajax get ip', function(cb){

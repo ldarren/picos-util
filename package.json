@@ -1,6 +1,6 @@
 {
   "name": "picos-util",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "util for picos and picos' modules",
   "main": "index.js",
   "scripts": {
@@ -12,7 +12,8 @@
   ],
   "author": "Darren Liew",
   "license": "MIT",
+  "repository": "https://github.com/ldarren/picos-util",
   "dependencies": {
-    "pico-common": "^0.7.6"
+    "pico-common": "*"
   }
 }

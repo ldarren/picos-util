@@ -39,23 +39,21 @@ module.exports = {
         }
 
         const isGet = 'GET' === (urlobj.method = method.toUpperCase())
-        let body = params || ''
+        let body = Array.isArray(params) ? pObj.extends({}, params, {tidy:1, mergeArr:1}) : params || ''
 
-        if (params && 'object' === typeof params){
-            if (params.length){
-                body = qs.stringify(pObj.extends({}, params, {tidy:1, mergeArr:1}))
-            }else{
-                body = qs.stringify(params)
-            }
-		}
 
         if (isGet){
-            urlobj.path += body ? '?' + body : body
+            urlobj.path += body ? '?' + qs.stringify(body) : body
             urlobj.headers = opt.headers||{}
         }else{
             urlobj.headers = Object.assign({
                 'Content-Type': 'application/x-www-form-urlencoded'
             },opt.headers||{})
+			switch(urlobj.headers['Content-Type']){
+			case 'application/json': body = JSON.stringify(body); break
+			case 'plain/text': body = body.toString(); break
+			default: body = qs.stringify(body); break
+			}
         }
         const req = protocol.request(urlobj, (res)=>{
             const
