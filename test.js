@@ -1,9 +1,9 @@
-const
-pico=require('pico-common/bin/pico-cli'),
-ensure= pico.export('pico/test').ensure,
-util=require('./index')
+const fs = require('fs')
+const pico = require('pico-common/bin/pico-cli')
+const {test} = pico.export('pico/test')
+const util = require('./index')
 
-ensure('ensure unzip the zip', function(cb){
+test('ensure unzip the zip', function(cb){
 	const secret='helloworld'
 	util.zip(secret, (err,z)=>{
 		if (err) return cb(err)
@@ -13,7 +13,7 @@ ensure('ensure unzip the zip', function(cb){
 		})
 	})
 })
-ensure('ensure ajax get work', function(cb){
+test('ensure ajax get work', function(cb){
 	util.ajax('get', 'https://httpbin.org/get', {i:1}, null, (err,code,res)=>{
 		if (4!==code) return
 		if (err) return cb(err)
@@ -22,7 +22,7 @@ ensure('ensure ajax get work', function(cb){
 		cb(null, 1==obj.args.i)
 	})
 })
-ensure('ensure ajax post work', function(cb){
+test('ensure ajax post work', function(cb){
 	util.ajax('post', 'https://httpbin.org/post', {i:1}, null, (err,code,res)=>{
 		if (4!==code) return
 		if (err) return cb(err)
@@ -31,7 +31,7 @@ ensure('ensure ajax post work', function(cb){
 		cb(null, 1==obj.form.i)
 	})
 })
-ensure('ensure ajax json post work', function(cb){
+test('ensure ajax json post work', function(cb){
 	util.ajax('post', 'https://httpbin.org/post', {i:1}, {headers:{'Content-Type': 'application/json'}}, (err,code,res)=>{
 		if (4!==code) return
 		if (err) return cb(err)
@@ -40,12 +40,30 @@ ensure('ensure ajax json post work', function(cb){
 		cb(null, 1==obj.json.i)
 	})
 })
-ensure('ensure ajax get ip', function(cb){
+test('ensure ajax get ip', function(cb){
 	util.ajax('get', 'https://httpbin.org/ip', null, null, (err,code,res)=>{
 		if (4!==code) return
 		if (err) return cb(err)
 		try{var obj=JSON.parse(res)}
 		catch(e){cb(e)}
 		cb(null, obj.origin)
+	})
+})
+test('ensure ajax unix socket', function(cb){
+	const http = require('http')
+	const socketPath = '/tmp/picos-util-test'
+	const path = '/echo'
+
+	fs.unlinkSync(socketPath)
+	const server = http.createServer( (req, res) => {
+		res.writeHead(200, {'Content-Type': 'text/plain'})
+		res.end(req.url)
+	});
+	server.listen(socketPath, () => {
+		util.ajax('get', path, null, {socketPath, path}, (err,code,res)=>{
+			if (4!==code) return
+			if (err) return cb(err)
+			cb(null, '/echo' === res)
+		})
 	})
 })

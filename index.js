@@ -35,12 +35,18 @@ module.exports = {
         switch(urlobj.protocol){
         case 'http:': protocol=http; break
         case 'https:': protocol=https; break
-        default: fs.readFile(href, 'utf8', (err, data)=>{ cb(err, 4, data, userData) }); return
+        default:
+			if (opt.socketPath){
+				protocol=http
+				urlobj.protocol = 'http:'
+				urlobj.socketPath = opt.socketPath
+				break
+			}
+			fs.readFile(href, 'utf8', (err, data)=>{ cb(err, 4, data, userData) }); return
         }
 
         const isGet = 'GET' === (urlobj.method = method.toUpperCase())
         let body = Array.isArray(params) ? pObj.extends({}, params, {tidy:1, mergeArr:1}) : params || ''
-
 
         if (isGet){
             urlobj.path += body ? '?' + qs.stringify(body) : body
@@ -55,7 +61,8 @@ module.exports = {
 			default: body = qs.stringify(body); break
 			}
         }
-        const req = protocol.request(urlobj, (res)=>{
+
+        const req = protocol.request(urlobj, res => {
             const
 			st=res.statusCode,
 			loc=res.headers.location
@@ -73,10 +80,10 @@ module.exports = {
             })
         })
 
-        req.setTimeout(opt.timeout||0, (err)=>{
+        req.setTimeout(opt.timeout||0, err => {
             cb({error:err.message,code:599,src:err,params:arguments}, 4, null, userData)
         })
-        req.on('error', (err)=>{
+        req.on('error', err => {
             cb({error:err.message,code:500,src:err,params:arguments}, 4, null, userData)
         })
 
