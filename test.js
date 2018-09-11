@@ -54,16 +54,19 @@ test('ensure ajax unix socket', function(cb){
 	const socketPath = '/tmp/picos-util-test'
 	const path = '/echo'
 
-	fs.unlinkSync(socketPath)
 	const server = http.createServer( (req, res) => {
 		res.writeHead(200, {'Content-Type': 'text/plain'})
 		res.end(req.url)
-	});
+	})
+	try{ fs.unlinkSync(socketPath) }
+	catch(ex) {}
 	server.listen(socketPath, () => {
-		util.ajax('get', path, null, {socketPath, path}, (err,code,res)=>{
+		util.ajax('get', path, null, {socketPath}, (err,code,res)=>{
 			if (4!==code) return
 			if (err) return cb(err)
-			cb(null, '/echo' === res)
+			server.close(() => {
+				cb(null, '/echo' === res)
+			})
 		})
 	})
 })
