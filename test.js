@@ -17,35 +17,47 @@ test('ensure ajax get work', function(cb){
 	util.ajax('get', 'https://httpbin.org/get', {i:1}, null, (err,code,res)=>{
 		if (4!==code) return
 		if (err) return cb(err)
-		try{var obj=JSON.parse(res)}
-		catch(e){cb(e)}
-		cb(null, 1==obj.args.i)
+		try{
+			var obj=JSON.parse(res)
+		} catch(e){
+			cb(e)
+		}
+		cb(null, '1' === obj.args.i)
 	})
 })
 test('ensure ajax post work', function(cb){
 	util.ajax('post', 'https://httpbin.org/post', {i:1}, null, (err,code,res)=>{
 		if (4!==code) return
 		if (err) return cb(err)
-		try{var obj=JSON.parse(res)}
-		catch(e){cb(e)}
-		cb(null, 1==obj.form.i)
+		try{
+			var obj=JSON.parse(res)
+		} catch(e){
+			cb(e)
+		}
+		cb(null, '1' === obj.form.i)
 	})
 })
 test('ensure ajax json post work', function(cb){
 	util.ajax('post', 'https://httpbin.org/post', {i:1}, {headers:{'Content-Type': 'application/json'}}, (err,code,res)=>{
 		if (4!==code) return
 		if (err) return cb(err)
-		try{var obj=JSON.parse(res)}
-		catch(e){cb(e)}
-		cb(null, 1==obj.json.i)
+		try{
+			var obj=JSON.parse(res)
+		} catch(e){
+			cb(e)
+		}
+		cb(null, 1 === obj.json.i)
 	})
 })
 test('ensure ajax get ip', function(cb){
 	util.ajax('get', 'https://httpbin.org/ip', null, null, (err,code,res)=>{
 		if (4!==code) return
 		if (err) return cb(err)
-		try{var obj=JSON.parse(res)}
-		catch(e){cb(e)}
+		try{
+			var obj=JSON.parse(res)
+		} catch(e){
+			cb(e)
+		}
 		cb(null, obj.origin)
 	})
 })
@@ -58,8 +70,11 @@ test('ensure ajax unix socket', function(cb){
 		res.writeHead(200, {'Content-Type': 'text/plain'})
 		res.end(req.url)
 	})
-	try{ fs.unlinkSync(socketPath) }
-	catch(ex) {}
+	try{
+		fs.unlinkSync(socketPath)
+	} catch(ex) {
+		console.error(ex)
+	}
 	server.listen(socketPath, () => {
 		util.ajax('get', path, null, {socketPath}, (err,code,res)=>{
 			if (4!==code) return

@@ -1,22 +1,24 @@
 {
   "name": "picos-util",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "util for picos and picos' modules",
   "main": "index.js",
   "scripts": {
-    "test": "node test.js"
+    "test": "node test.js",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "keywords": [
     "picos",
     "util",
-	"nodejs",
-	"ajax",
-	"unix socket"
+    "nodejs",
+    "ajax",
+    "unix socket"
   ],
   "author": "Darren Liew",
   "license": "MIT",
   "repository": "https://github.com/ldarren/picos-util",
   "dependencies": {
-    "pico-common": "^0.10.9"
+    "pico-common": "^0.10.18"
   }
 }
