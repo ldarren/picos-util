@@ -63,7 +63,7 @@ test('ensure ajax get ip', function(cb){
 })
 test('ensure ajax unix socket', function(cb){
 	const http = require('http')
-	const socketPath = '/tmp/picos-util-test'
+	const socketPath = '/tmp/picos-util-socket'
 	const path = '/echo'
 
 	const server = http.createServer( (req, res) => {
@@ -80,8 +80,32 @@ test('ensure ajax unix socket', function(cb){
 			if (4!==code) return
 			if (err) return cb(err)
 			server.close(() => {
-				cb(null, '/echo' === res)
+				cb(null, 0 === res.indexOf('/echo'))
 			})
+		})
+	})
+	test('ensure ajax get with opt.query', function(cb){
+		util.ajax('get', 'https://httpbin.org/anything', {q1:1}, {query: {q2:2}}, (err,code,res)=>{
+			if (4!==code) return
+			if (err) return cb(err)
+			try{
+				var {args}=JSON.parse(res)
+			} catch(e){
+				cb(e)
+			}
+			cb(null, args.q1 === '1' && args.q2 === '2')
+		})
+	})
+	test('ensure ajax post with opt.query', function(cb){
+		util.ajax('post', 'https://httpbin.org/anything', {q1:1}, {query: {q2:2}}, (err,code,res)=>{
+			if (4!==code) return
+			if (err) return cb(err)
+			try{
+				var {args}=JSON.parse(res)
+			} catch(e){
+				cb(e)
+			}
+			cb(null, !args.q1 && args.q2 === '2')
 		})
 	})
 })

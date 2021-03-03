@@ -1,6 +1,6 @@
 {
   "name": "picos-util",
-  "version": "0.1.4",
+  "version": "0.2.0",
   "description": "util for picos and picos' modules",
   "main": "index.js",
   "scripts": {
@@ -19,6 +19,6 @@
   "license": "MIT",
   "repository": "https://github.com/ldarren/picos-util",
   "dependencies": {
-    "pico-common": "^0.10.18"
+    "pico-common": "^0.14.17"
   }
 }

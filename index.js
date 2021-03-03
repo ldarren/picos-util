@@ -6,6 +6,8 @@ const url = require('url')
 const qs = require('querystring')
 const pObj = require('pico-common').export('pico/obj')
 
+const extendOpt = {tidy:1, mergeArr:1}
+
 module.exports = {
 
 	zip(str, cb){
@@ -49,12 +51,13 @@ module.exports = {
 		}
 
 		const isGet = 'GET' === (urlobj.method = method.toUpperCase())
-		let body = Array.isArray(params) ? pObj.extends({}, params, {tidy:1, mergeArr:1}) : params || ''
+		let body = Array.isArray(params) ? pObj.extends({}, params, extendOpt) : params || {}
 
 		if (isGet){
-			urlobj.path += body ? '?' + qs.stringify(body) : body
+			urlobj.path += '?' + qs.stringify(pObj.extends({}, [body, opt.query || {}], extendOpt))
 			urlobj.headers = opt.headers||{}
 		}else{
+			urlobj.path += '?' + qs.stringify(opt.query || {})
 			urlobj.headers = Object.assign({
 				'Content-Type': 'application/x-www-form-urlencoded'
 			},opt.headers||{})

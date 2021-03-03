@@ -11,7 +11,7 @@ utility functions for nodejs, tested with [pico-api](https://github.com/ldarren/
 const util = require('picos-util')
 
 // Method, URL, Params/Payload, Options, Callback
-util.ajax('GET', '/echo', null, {socketPath:'/run/app.sock', (err, state, res) => {
+util.ajax('GET', '/echo', null, {socketPath:'/run/app.sock'}, (err, state, res) => {
 	if (4 === state) return // support response streaming
 	if (err) return console.error(err)
 	console.log(res)
