@@ -3,6 +3,17 @@ const pico = require('pico-common/bin/pico-cli')
 const {test} = pico.export('pico/test')
 const util = require('./index')
 
+const dummyCB = () => {}
+
+function echo(urlobj, cb){
+	cb({headers: {}, setEncoding: dummyCB, on: dummyCB, statusCode: 400, statusMessage: urlobj})
+	return {
+		setTimeout: dummyCB,
+		on: dummyCB,
+		end: dummyCB
+	}
+}
+
 test('ensure unzip the zip', function(cb){
 	const secret='helloworld'
 	util.zip(secret, (err,z)=>{
@@ -82,6 +93,16 @@ test('ensure ajax unix socket', function(cb){
 			server.close(() => {
 				cb(null, 0 === res.indexOf('/echo'))
 			})
+		})
+	})
+	test('ensure get ajax doesnt add tailing ?', function(cb){
+		util.ajax('get', 'https://httpbin.org/anything', {}, {request: echo}, ({error: urlobj})=>{
+			cb(null, '?' !== urlobj.path.charAt(urlobj.path.length - 1))
+		})
+	})
+	test('ensure post ajax doesnt add tailing ?', function(cb){
+		util.ajax('post', 'https://httpbin.org/anything', {}, {request: echo}, ({error: urlobj})=>{
+			cb(null, '?' !== urlobj.path.charAt(urlobj.path.length - 1))
 		})
 	})
 	test('ensure ajax get with opt.query', function(cb){

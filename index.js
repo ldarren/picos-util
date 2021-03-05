@@ -23,6 +23,7 @@ module.exports = {
 			cb(err, err || buf.toString())
 		})
 	},
+
 	// params can be an object or an array of objects
 	// if it is an array, objects will be merged, overlapped key will be overrided by later object
 	ajax:function callee(method, href, params, opt, cb, userData){
@@ -33,31 +34,36 @@ module.exports = {
 		opt=opt||{}
 
 		const urlobj = url.parse(href)
-		let protocol
+		let protocol = opt
 
-		switch(urlobj.protocol){
-		case 'http:': protocol=http; break
-		case 'https:': protocol=https; break
-		default:
-			if (opt.socketPath){
-				protocol=http
-				urlobj.protocol = 'http:'
-				urlobj.socketPath = opt.socketPath
-				break
+		if (!protocol.request){
+			switch(urlobj.protocol){
+			case 'http:': protocol=http; break
+			case 'https:': protocol=https; break
+			default:
+				if (opt.socketPath){
+					protocol=http
+					urlobj.protocol = 'http:'
+					urlobj.socketPath = opt.socketPath
+					break
+				}
+				fs.readFile(href, 'utf8', (err, data)=>{
+					cb(err, 4, data, userData)
+				}); return
 			}
-			fs.readFile(href, 'utf8', (err, data)=>{
-				cb(err, 4, data, userData)
-			}); return
 		}
 
 		const isGet = 'GET' === (urlobj.method = method.toUpperCase())
 		let body = Array.isArray(params) ? pObj.extends({}, params, extendOpt) : params || {}
+		let query
 
 		if (isGet){
-			urlobj.path += '?' + qs.stringify(pObj.extends({}, [body, opt.query || {}], extendOpt))
+			query = qs.stringify(pObj.extends({}, [body, opt.query || {}], extendOpt))
+			urlobj.path += query ? '?' + query : ''
 			urlobj.headers = opt.headers||{}
 		}else{
-			urlobj.path += '?' + qs.stringify(opt.query || {})
+			query = qs.stringify(opt.query || {})
+			urlobj.path += query ? '?' + query : ''
 			urlobj.headers = Object.assign({
 				'Content-Type': 'application/x-www-form-urlencoded'
 			},opt.headers||{})
