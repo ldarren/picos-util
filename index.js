@@ -2,7 +2,6 @@ const zlib = require('zlib')
 const http = require('http')
 const https = require('https')
 const fs = require('fs')
-const url = require('url')
 const qs = require('querystring')
 const pObj = require('pico-common').export('pico/obj')
 
@@ -24,49 +23,76 @@ module.exports = {
 		})
 	},
 
-	// params can be an object or an array of objects
-	// if it is an array, objects will be merged, overlapped key will be overrided by later object
+	/**
+	 * params can be an object or an array of objects
+	 * if it is an array, objects will be merged, overlapped key will be overrided by later object
+	 *
+	 * @param {string} method - get/post/put/delete/patch
+	 * @param {string} href - path,
+	 * @param {object|Array} [params] - null/parameters (optional),
+	 * @param {object} [opt={}] - optional options
+	 * @param {object} [opt.headers] - customer request headers
+	 * @param {object} [opt.query] - query string to be included regardless of request method
+	 * @param {Function} [opt.request] - alternative http request method
+	 * @param {string} [opt.socketPath] - unix socket path
+	 * @param {number} [opt.timeout] - request timeout
+	 * @param {Function} cb - callback(err, state, res, userData),
+	 * @param {object} [userData] - optional user data
+	 *
+	 * returns {void} - undefined
+	 */
 	ajax:function callee(method, href, params, opt, cb, userData){
 		cb = cb || ((err)=>{
 			if (err) console.error(method, href, params, opt, userData, err)
 		})
-		if (!href) return cb('url not defined')
-		opt=opt||{}
+		if (!href) return cb('href not defined')
+		const options = Object.assign({
+			method: method.toUpperCase(),
+		}, opt || {})
 
-		const urlobj = url.parse(href)
-		let protocol = opt
+		let urlobj = {}
+		if (options.socketPath){
+			options.path = href
+		}else{
+			urlobj = new URL(href)
+		}
+		let protocol = options
 
-		if (!protocol.request){
+		if (!options.request){
 			switch(urlobj.protocol){
 			case 'http:': protocol=http; break
 			case 'https:': protocol=https; break
 			default:
-				if (opt.socketPath){
+				if (options.socketPath){
 					protocol=http
-					urlobj.protocol = 'http:'
-					urlobj.socketPath = opt.socketPath
 					break
 				}
 				fs.readFile(href, 'utf8', (err, data)=>{
 					cb(err, 4, data, userData)
-				}); return
+				})
+				return
 			}
 		}
 
-		const isGet = 'GET' === (urlobj.method = method.toUpperCase())
+		const isGet = 'GET' === options.method
 		let body = Array.isArray(params) ? pObj.extends({}, params, extendOpt) : params || {}
+		let sep = urlobj.search && -1=== urlobj.search.indexOf('?')?'?':'&'
 		let query
 
-		if (isGet){
-			query = qs.stringify(pObj.extends({}, [body, opt.query || {}], extendOpt))
-			urlobj.path += query ? '?' + query : ''
-			urlobj.headers = opt.headers||{}
+		if (options.socketPath){
+			query = qs.stringify(pObj.extends({}, [body, options.query || {}], extendOpt))
+			options.path += query ? sep + query : ''
+			options.headers = opt.headers||{}
+		}else if (isGet){
+			query = qs.stringify(pObj.extends({}, [body, options.query || {}], extendOpt))
+			urlobj.search += query ? sep + query : ''
+			urlobj.headers = options.headers||{}
 		}else{
-			query = qs.stringify(opt.query || {})
-			urlobj.path += query ? '?' + query : ''
+			query = qs.stringify(options.query || {})
+			urlobj.search += query ? sep + query : ''
 			urlobj.headers = Object.assign({
 				'Content-Type': 'application/x-www-form-urlencoded'
-			},opt.headers||{})
+			},options.headers||{})
 			switch(urlobj.headers['Content-Type']){
 			case 'application/json': body = JSON.stringify(body); break
 			case 'plain/text': body = body.toString(); break
@@ -74,7 +100,7 @@ module.exports = {
 			}
 		}
 
-		const req = protocol.request(urlobj, res => {
+		function handler(res){
 			const st=res.statusCode
 			const loc=res.headers.location
 			if (st>=300 && st<400 && loc) return callee(method,loc,params,opt,cb,userData)
@@ -89,9 +115,10 @@ module.exports = {
 			res.on('end', ()=>{
 				cb(err, 4, data, userData)
 			})
-		})
+		}
+		const req = options.socketPath ? protocol.request(options, handler) : protocol.request(urlobj, options, handler)
 
-		req.setTimeout(opt.timeout||0, err => {
+		req.setTimeout(options.timeout||0, err => {
 			cb({error:err.message,code:599,src:err,params:arguments}, 4, null, userData)
 		})
 		req.on('error', err => {
