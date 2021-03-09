@@ -44,7 +44,7 @@ test('ensure ajax post work', function(cb){
 		} catch(e){
 			cb(e)
 		}
-		cb(null, 'i=1' === obj.data)
+		cb(null, '1' === obj.form.i)
 	})
 })
 test('ensure ajax json post work', function(cb){
