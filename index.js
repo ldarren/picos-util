@@ -98,7 +98,7 @@ module.exports = {
 			}
 		}
 
-		function handler(res){
+		const handler = res => {
 			const st=res.statusCode
 			const loc=res.headers.location
 			if (st>=300 && st<400 && loc) return callee(method,loc,params,opt,cb,userData)

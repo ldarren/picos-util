@@ -141,3 +141,15 @@ test('ensure mxied query string works', function(cb){
 		cb(null, args.q1 === '1' && args.q2 === '2' && args.q3 === '3')
 	})
 })
+test('ensure ensure error object is safe to stringify', function(cb){
+	util.ajax('get', 'https://httpbin.org/status/400', null, null, (err,code,res)=>{
+		if (4!==code) return
+		if (!err) return cb(null, false)
+		try{
+			var json=JSON.stringify(err)
+		} catch(e){
+			return cb(e)
+		}
+		cb(null, null != json.charAt)
+	})
+})
