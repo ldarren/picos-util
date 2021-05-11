@@ -76,7 +76,7 @@ module.exports = {
 
 		const isGet = 'GET' === options.method
 		let body = Array.isArray(params) ? pObj.extends({}, params, extendOpt) : params || {}
-		let sep = urlobj.search && -1=== urlobj.search.indexOf('?')?'?':'&'
+		let sep = null != urlobj.search && -1=== urlobj.search.indexOf('?')?'?':'&'
 		let query
 
 		if (options.socketPath){
