@@ -54,7 +54,14 @@ module.exports = {
 		if (options.socketPath){
 			options.path = href
 		}else{
-			urlobj = new URL(href)
+			try{
+				urlobj = new URL(href)
+			} catch(ex){
+				fs.readFile(href, 'utf8', (err, data)=>{
+					cb(err, 4, data, userData)
+				})
+				return
+			}
 		}
 		let protocol = options
 
@@ -67,10 +74,6 @@ module.exports = {
 					protocol=http
 					break
 				}
-				fs.readFile(href, 'utf8', (err, data)=>{
-					cb(err, 4, data, userData)
-				})
-				return
 			}
 		}
 
