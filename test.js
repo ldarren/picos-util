@@ -129,7 +129,7 @@ test('ensure ajax post with opt.query', function(cb){
 		cb(null, !args.q1 && args.q2 === '2')
 	})
 })
-test('ensure mxied query string works', function(cb){
+test('ensure mixed query string works', function(cb){
 	util.ajax('get', 'https://httpbin.org/anything?q1=1', {q2:2}, {query: {q3:3}}, (err,code,res)=>{
 		if (4!==code) return
 		if (err) return cb(err)
@@ -141,7 +141,19 @@ test('ensure mxied query string works', function(cb){
 		cb(null, args.q1 === '1' && args.q2 === '2' && args.q3 === '3')
 	})
 })
-test('ensure ensure error object is safe to stringify', function(cb){
+test('ensure no over encodeURLComponent', function(cb){
+	util.ajax('get', 'https://httpbin.org/anything?<h1>=a,b', {'<h2>': 'idx,id'}, {query: {'<h3>':'1,2,3'}}, (err,code,res)=>{
+		if (4!==code) return
+		if (err) return cb(err)
+		try{
+			var {args}=JSON.parse(res)
+		} catch(e){
+			cb(e)
+		}
+		cb(null, args['<h1>'] === 'a,b' && args['<h2>'] === 'idx,id' && args['<h3>'] === '1,2,3')
+	})
+})
+test('ensure error object is safe to stringify', function(cb){
 	util.ajax('get', 'https://httpbin.org/status/400', null, null, (err,code,res)=>{
 		if (4!==code) return
 		if (!err) return cb(null, false)
@@ -151,5 +163,12 @@ test('ensure ensure error object is safe to stringify', function(cb){
 			return cb(e)
 		}
 		cb(null, null != json.charAt)
+	})
+})
+test('ensure local files are handled', function(cb){
+	util.ajax('get', './test.js', null, null, (err,code,res)=>{
+		if (4!==code) return
+		if (err) return cb(null, false)
+		cb(null, !!res.length)
 	})
 })
