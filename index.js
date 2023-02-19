@@ -129,5 +129,14 @@ module.exports = {
 		if (isGet) req.end()
 		else req.end(body)
 		return req
+	},
+
+	env(obj){
+		const keys = Object.keys(obj)
+		const env = process.env
+		for (let i = 0, l = keys.length, k; i < l; i++){
+			k = keys[i]
+			env[k] = String(obj[k])
+		}
 	}
 }

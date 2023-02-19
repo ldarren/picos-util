@@ -172,3 +172,19 @@ test('ensure local files are handled', function(cb){
 		cb(null, !!res.length)
 	})
 })
+test('ensure export to environment variable works', function(cb){
+	const env = {
+		mod_ps_str: ':hel.lo',
+		mod_ps_b: false,
+		mod_ps_n: 3.142,
+		mod_ps_a: [1,2,3],
+		mod_ps_null: null
+	}
+	util.env(env)
+	if (process.env.mod_ps_str !== String(env.mod_ps_str)) return cb(null, false)
+	if (process.env.mod_ps_b !== String(env.mod_ps_b)) return cb(null, false)
+	if (process.env.mod_ps_n !== String(env.mod_ps_n)) return cb(null, false)
+	if (process.env.mod_ps_a !== String(env.mod_ps_a)) return cb(null, false)
+	if (process.env.mod_ps_null !== String(env.mod_ps_null)) return cb(null, false)
+	cb(null, true)
+})
