@@ -54,7 +54,14 @@ module.exports = {
 		if (options.socketPath){
 			options.path = href
 		}else{
-			urlobj = new URL(href)
+			try{
+				urlobj = new URL(href)
+			} catch(ex){
+				fs.readFile(href, 'utf8', (err, data)=>{
+					cb(err, 4, data, userData)
+				})
+				return
+			}
 		}
 		let protocol = options
 
@@ -67,16 +74,12 @@ module.exports = {
 					protocol=http
 					break
 				}
-				fs.readFile(href, 'utf8', (err, data)=>{
-					cb(err, 4, data, userData)
-				})
-				return
 			}
 		}
 
 		const isGet = 'GET' === options.method
 		let body = Array.isArray(params) ? pObj.extends({}, params, extendOpt) : params || {}
-		let sep = urlobj.search && -1=== urlobj.search.indexOf('?')?'?':'&'
+		let sep = null != urlobj.search && -1=== urlobj.search.indexOf('?')?'?':'&'
 		let query
 
 		if (options.socketPath){
@@ -126,5 +129,14 @@ module.exports = {
 		if (isGet) req.end()
 		else req.end(body)
 		return req
+	},
+
+	env(obj){
+		const keys = Object.keys(obj)
+		const env = process.env
+		for (let i = 0, l = keys.length, k; i < l; i++){
+			k = keys[i]
+			env[k] = String(obj[k])
+		}
 	}
 }
