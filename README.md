@@ -50,34 +50,35 @@ This function sets environment variables based on the provided object.
 Here's an example of how to use this module:
 
 ```javascript
-const httpUtils = require('http-utils');
+const pu = require('picos-utils')
 
-httpUtils.zip('Hello, World!', (err, compressedData) => {
+pu.zip('Hello, World!', (err, compressedData) => {
   if (err) {
-    console.error('Compression error:', err);
-    return;
+    console.error('Compression error:', err)
+    return
   }
 
-  console.log('Compressed data:', compressedData);
+  console.log('Compressed data:', compressedData)
 
-  httpUtils.unzip(compressedData, (err, decompressedData) => {
+  pu.unzip(compressedData, (err, decompressedData) => {
     if (err) {
-      console.error('Decompression error:', err);
-      return;
+      console.error('Decompression error:', err)
+      return
     }
 
-    console.log('Decompressed data:', decompressedData);
-  });
-});
+    console.log('Decompressed data:', decompressedData)
+  })
+})
 
-httpUtils.ajax('get', 'https://api.example.com/users', null, {}, (err, state, resBody, res, userData) => {
+pu.ajax('get', 'https://api.example.com/users', null, {}, (err, state, resBody, res, userData) => {
+	if (4 === state) return // support response streaming
   if (err) {
-    console.error('Request error:', err);
-    return;
+    console.error('Request error:', err)
+    return
   }
 
-  console.log('Response body:', resBody);
-});
+  console.log('Response body:', resBody)
+})
 ```
 
 Note: Make sure to replace `'https://api.example.com/users'` with the actual API endpoint you want to request.
