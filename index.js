@@ -26,6 +26,7 @@ module.exports = {
 	/**
 	 * params can be an object or an array of objects
 	 * if it is an array, objects will be merged, overlapped key will be overrided by later object
+	 * note: the response object return by callback are env specific, nodejs and browser return different response object
 	 *
 	 * @param {string} method - get/post/put/delete/patch
 	 * @param {string} href - path,
@@ -35,7 +36,7 @@ module.exports = {
 	 * @param {Function} [opt.request] - alternative http request function
 	 * @param {string} [opt.socketPath] - unix domain socket path
 	 * @param {number} [opt.ttl] - after connected request timeout, for before connected timeout, see options
-	 * @param {Function} cb - callback(err, state, res, userData),
+	 * @param {Function} cb - callback(err, state, resBody, res, userData),
 	 * @param {object} [userData] - optional user data
 	 *
 	 * returns {void} - undefined
@@ -44,10 +45,11 @@ module.exports = {
 		cb = cb || ((err)=>{
 			if (err) console.error(method, href, params, opt, userData, err)
 		})
-		if (!href) return cb('href not defined')
+		if (!href) return cb('href not defined', 4, null, null, userData)
 		const options = Object.assign({
 			method: method.toUpperCase(),
-			headers: {}
+			headers: {},
+			redirect: 1
 		}, opt || {})
 
 		let urlobj = {}
@@ -58,7 +60,7 @@ module.exports = {
 				urlobj = new URL(href)
 			} catch(ex){
 				fs.readFile(href, 'utf8', (err, data)=>{
-					cb(err, 4, data, userData)
+					cb(err, 4, data, null, userData)
 				})
 				return
 			}
@@ -70,10 +72,9 @@ module.exports = {
 			case 'http:': protocol=http; break
 			case 'https:': protocol=https; break
 			default:
-				if (options.socketPath){
-					protocol=http
-					break
-				}
+				if (!options.socketPath) return cb('unsupported protocol: ' + urlobj.protocol, 4, null, null, userData)
+				protocol=http
+				break
 			}
 		}
 
@@ -104,26 +105,26 @@ module.exports = {
 		const handler = res => {
 			const st=res.statusCode
 			const loc=res.headers.location
-			if (st>=300 && st<400 && loc) return callee(method,loc,params,opt,cb,userData)
+			if (st>=300 && st<400 && options.redirect && loc) return callee(method,loc,params,opt,cb,userData)
 			res.setEncoding('utf8')
-			const err=(300>st || !st) ? null : {error:res.statusMessage,code:st,params:arguments}
-			cb(err, 2, null, userData)
+			const err=(399>st || !st) ? null : {error:res.statusMessage,code:st,params:arguments}
+			cb(err, 2, null, res, userData)
 			let data = ''
 			res.on('data', (chunk)=>{
 				data += chunk
-				cb(err, 3, data, userData)
+				cb(err, 3, data, res, userData)
 			})
 			res.on('end', ()=>{
-				cb(err, 4, data, userData)
+				cb(err, 4, data, res, userData)
 			})
 		}
 		const req = options.socketPath ? protocol.request(options, handler) : protocol.request(urlobj, options, handler)
 
 		req.setTimeout(options.ttl||0, err => {
-			cb({error:err.message,code:599,src:err,params:arguments}, 4, null, userData)
+			cb({error:err.message,code:599,src:err,params:arguments}, 4, null, null, userData)
 		})
 		req.on('error', err => {
-			cb({error:err.message,code:500,src:err,params:arguments}, 4, null, userData)
+			cb({error:err.message,code:500,src:err,params:arguments}, 4, null, null, userData)
 		})
 
 		if (isGet) req.end()
