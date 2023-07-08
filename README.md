@@ -71,7 +71,7 @@ pu.zip('Hello, World!', (err, compressedData) => {
 })
 
 pu.ajax('get', 'https://api.example.com/users', null, {}, (err, state, resBody, res, userData) => {
-	if (4 === state) return // support response streaming
+  if (4 === state) return // support response streaming
   if (err) {
     console.error('Request error:', err)
     return
