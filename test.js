@@ -24,11 +24,11 @@ test('ensure unzip the zip', function(cb){
 	})
 })
 test('ensure ajax get work', function(cb){
-	util.ajax('get', 'https://httpbin.org/get', {i:1}, null, (err,code,res)=>{
+	util.ajax('get', 'https://httpbin.org/get', {i:1}, null, (err,code,body)=>{
 		if (4!==code) return
 		if (err) return cb(err)
 		try{
-			var obj=JSON.parse(res)
+			var obj=JSON.parse(body)
 		} catch(e){
 			cb(e)
 		}
@@ -36,11 +36,11 @@ test('ensure ajax get work', function(cb){
 	})
 })
 test('ensure ajax post work', function(cb){
-	util.ajax('post', 'https://httpbin.org/post', {i:1}, null, (err,code,res)=>{
+	util.ajax('post', 'https://httpbin.org/post', {i:1}, null, (err,code,body)=>{
 		if (4!==code) return
 		if (err) return cb(err)
 		try{
-			var obj=JSON.parse(res)
+			var obj=JSON.parse(body)
 		} catch(e){
 			cb(e)
 		}
@@ -48,11 +48,11 @@ test('ensure ajax post work', function(cb){
 	})
 })
 test('ensure ajax json post work', function(cb){
-	util.ajax('post', 'https://httpbin.org/post', {i:1}, {headers:{'Content-Type': 'application/json'}}, (err,code,res)=>{
+	util.ajax('post', 'https://httpbin.org/post', {i:1}, {headers:{'Content-Type': 'application/json'}}, (err,code,body)=>{
 		if (4!==code) return
 		if (err) return cb(err)
 		try{
-			var obj=JSON.parse(res)
+			var obj=JSON.parse(body)
 		} catch(e){
 			cb(e)
 		}
@@ -60,11 +60,11 @@ test('ensure ajax json post work', function(cb){
 	})
 })
 test('ensure ajax get ip', function(cb){
-	util.ajax('get', 'https://httpbin.org/ip', null, null, (err,code,res)=>{
+	util.ajax('get', 'https://httpbin.org/ip', null, null, (err,code,body)=>{
 		if (4!==code) return
 		if (err) return cb(err)
 		try{
-			var obj=JSON.parse(res)
+			var obj=JSON.parse(body)
 		} catch(e){
 			cb(e)
 		}
@@ -86,11 +86,11 @@ test('ensure ajax unix socket', function(cb){
 		console.error(ex)
 	}
 	server.listen(socketPath, () => {
-		util.ajax('get', path, null, {socketPath}, (err,code,res)=>{
+		util.ajax('get', path, null, {socketPath}, (err,code,body)=>{
 			if (4!==code) return
 			if (err) return cb(err)
 			server.close(() => {
-				cb(null, 0 === res.indexOf('/echo'))
+				cb(null, 0 === body.indexOf('/echo'))
 			})
 		})
 	})
@@ -106,11 +106,11 @@ test('ensure post ajax doesnt add tailing ?', function(cb){
 	})
 })
 test('ensure ajax get with opt.query', function(cb){
-	util.ajax('get', 'https://httpbin.org/anything', {q1:1}, {query: {q2:2}}, (err,code,res)=>{
+	util.ajax('get', 'https://httpbin.org/anything', {q1:1}, {query: {q2:2}}, (err,code,body)=>{
 		if (4!==code) return
 		if (err) return cb(err)
 		try{
-			var {args}=JSON.parse(res)
+			var {args}=JSON.parse(body)
 		} catch(e){
 			cb(e)
 		}
@@ -118,11 +118,11 @@ test('ensure ajax get with opt.query', function(cb){
 	})
 })
 test('ensure ajax post with opt.query', function(cb){
-	util.ajax('post', 'https://httpbin.org/anything', {q1:1}, {query: {q2:2}}, (err,code,res)=>{
+	util.ajax('post', 'https://httpbin.org/anything', {q1:1}, {query: {q2:2}}, (err,code,body)=>{
 		if (4!==code) return
 		if (err) return cb(err)
 		try{
-			var {args}=JSON.parse(res)
+			var {args}=JSON.parse(body)
 		} catch(e){
 			cb(e)
 		}
@@ -130,11 +130,11 @@ test('ensure ajax post with opt.query', function(cb){
 	})
 })
 test('ensure mixed query string works', function(cb){
-	util.ajax('get', 'https://httpbin.org/anything?q1=1', {q2:2}, {query: {q3:3}}, (err,code,res)=>{
+	util.ajax('get', 'https://httpbin.org/anything?q1=1', {q2:2}, {query: {q3:3}}, (err,code,body)=>{
 		if (4!==code) return
 		if (err) return cb(err)
 		try{
-			var {args}=JSON.parse(res)
+			var {args}=JSON.parse(body)
 		} catch(e){
 			cb(e)
 		}
@@ -142,11 +142,11 @@ test('ensure mixed query string works', function(cb){
 	})
 })
 test('ensure no over encodeURLComponent', function(cb){
-	util.ajax('get', 'https://httpbin.org/anything?<h1>=a,b', {'<h2>': 'idx,id'}, {query: {'<h3>':'1,2,3'}}, (err,code,res)=>{
+	util.ajax('get', 'https://httpbin.org/anything?<h1>=a,b', {'<h2>': 'idx,id'}, {query: {'<h3>':'1,2,3'}}, (err,code,body)=>{
 		if (4!==code) return
 		if (err) return cb(err)
 		try{
-			var {args}=JSON.parse(res)
+			var {args}=JSON.parse(body)
 		} catch(e){
 			cb(e)
 		}
@@ -154,7 +154,7 @@ test('ensure no over encodeURLComponent', function(cb){
 	})
 })
 test('ensure error object is safe to stringify', function(cb){
-	util.ajax('get', 'https://httpbin.org/status/400', null, null, (err,code,res)=>{
+	util.ajax('get', 'https://httpbin.org/status/400', null, null, (err,code,body)=>{
 		if (4!==code) return
 		if (!err) return cb(null, false)
 		try{
@@ -166,10 +166,10 @@ test('ensure error object is safe to stringify', function(cb){
 	})
 })
 test('ensure local files are handled', function(cb){
-	util.ajax('get', './test.js', null, null, (err,code,res)=>{
+	util.ajax('get', './test.js', null, null, (err,code,body)=>{
 		if (4!==code) return
 		if (err) return cb(null, false)
-		cb(null, !!res.length)
+		cb(null, !!body.length)
 	})
 })
 test('ensure export to environment variable works', function(cb){
@@ -187,4 +187,27 @@ test('ensure export to environment variable works', function(cb){
 	if (process.env.mod_ps_a !== String(env.mod_ps_a)) return cb(null, false)
 	if (process.env.mod_ps_null !== String(env.mod_ps_null)) return cb(null, false)
 	cb(null, true)
+})
+test('ensure redirect by default', function(cb){
+	util.ajax('get', 'https://httpbin.org/redirect-to', {url: 'http://checkip.amazonaws.com',status_code: 302}, null, (err,code,body,res)=>{
+		if (4!==code) return
+		if (err) return cb(null, false. err)
+		const ip = body.replace(/(\r\n|\n|\r)/gm, '')
+		cb(null, 200 === res.statusCode && /^((\d\d?|1\d\d|2([0-4]\d|5[0-5]))\.){3}(\d\d?|1\d\d|2([0-4]\d|5[0-5]))$/.test(ip))
+	})
+})
+test('ensure redirect can be turn off', function(cb){
+	const reqBody = {url: 'http://checkip.amazonaws.com',status_code: 302}
+	util.ajax('get', 'https://httpbin.org/redirect-to', reqBody, {redirect: 0}, (err,code,body,res)=>{
+		if (4!==code) return
+		if (err) return cb(null, false. err)
+		cb(null, 302 === res.statusCode && res.headers.location === reqBody.url)
+	})
+})
+test('ensure userData returns in error', function(cb){
+	util.ajax('get', '//httpbin.org/get', null, null, (err,code,body,res,userData)=>{
+		if (4!==code) return
+		if (!err) return cb(null, false)
+		cb(null, 'UD' === userData)
+	}, 'UD')
 })

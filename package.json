@@ -1,6 +1,6 @@
 {
   "name": "picos-util",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "description": "util for picos and picos' modules",
   "main": "index.js",
   "scripts": {
@@ -13,12 +13,13 @@
     "util",
     "nodejs",
     "ajax",
-    "unix socket"
+    "unix socket",
+		"json to environment variables"
   ],
   "author": "Darren Liew",
   "license": "MIT",
   "repository": "https://github.com/ldarren/picos-util",
   "peerDependencies": {
-    "pico-common": "0.x"
+    "pico-common": "*"
   }
 }
