@@ -1,13 +1,13 @@
 # picos-util
 
-This is a JavaScript module that provides utility functions for making HTTP requests and handling data compression. It utilizes the `zlib`, `http`, `https`, `fs`, `querystring`, and `pico-common` libraries.
+This is a JavaScript module that provides utility functions for making HTTP requests, handling data compression, and managing environment variables. It utilizes the `zlib`, `http`, `https`, `fs`, `querystring`, and `pico-common` libraries.
 
 ## Installation
 
 To use this module, you need to have Node.js installed. You can install the required dependencies by running the following command:
 
-```bash
-npm install picos-util
+```
+npm i picos-util
 ```
 
 ## Usage
@@ -70,13 +70,13 @@ httpUtils.zip('Hello, World!', (err, compressedData) => {
   });
 });
 
-httpUtils.ajax('get', 'https://api.example.com/users', null, {}, (err, state, res, userData) => {
+httpUtils.ajax('get', 'https://api.example.com/users', null, {}, (err, state, resBody, res, userData) => {
   if (err) {
     console.error('Request error:', err);
     return;
   }
 
-  console.log('Response:', res);
+  console.log('Response body:', resBody);
 });
 ```
 
