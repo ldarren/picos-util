@@ -26,6 +26,7 @@ module.exports = {
 	/**
 	 * params can be an object or an array of objects
 	 * if it is an array, objects will be merged, overlapped key will be overrided by later object
+	 * note: the response object return by callback are env specific, nodejs and browser return different response object
 	 *
 	 * @param {string} method - get/post/put/delete/patch
 	 * @param {string} href - path,
