@@ -200,8 +200,8 @@ test('ensure redirect can be turn off', function(cb){
 	const reqBody = {url: 'http://checkip.amazonaws.com',status_code: 302}
 	util.ajax('get', 'https://httpbin.org/redirect-to', reqBody, {redirect: 0}, (err,code,body,res)=>{
 		if (4!==code) return
-		if (err) return cb(null, false. err)
-		cb(null, 302 === res.statusCode && res.headers.location === reqBody.url)
+		if (err) return cb(err, false)
+		cb(null, reqBody.status_code === res.statusCode && res.headers.location === reqBody.url)
 	})
 })
 test('ensure userData returns in error', function(cb){
